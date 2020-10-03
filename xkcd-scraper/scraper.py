@@ -43,7 +43,7 @@ def download_img(post_list: list):
     using the xkcd API
     """
 
-    for i in range(4):
+    for i in range(len(post_list)):
         # Adds the proper URL to get the json
         # information for each of the posts
         post_list[i] += 'info.0.json'
