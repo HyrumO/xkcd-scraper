@@ -1,8 +1,7 @@
 from bs4 import BeautifulSoup as bs
 import requests
 
-import os
-directoryPath = "Files"
+
 
 
 
@@ -42,18 +41,24 @@ def download_img(post_list: list):
     Takes in a list of posts and then downloads the images from each of them
     using the xkcd API
     """
-
-    for i in range(len(post_list)):
+    
+    for i in range(2): #can use this if want
         # Adds the proper URL to get the json
         # information for each of the posts
+        #gets the title of the image, and the name of the image as well
         post_list[i] += 'info.0.json'
         post_json = requests.get(post_list[i]).json()
-        img_num, img_url = post_json['num'], post_json['img']
-        title = post_json['title']
+        img_num, img_url, title_text = post_json['num'], post_json['img'], post_json['alt']
+        
         
         #confimrs that it is actually downloading it
-        print(title+": "+str(img_num))
+        #print(title+": "+str(img_num))
+
+        #what is in the photo
+        context = title_text
         
+        
+
         # Downloads the images and saves it as the post number(img_num) to the directory "Files"
         img = requests.get(img_url)
         f  = open(f'ImageDownloads\\{img_num}.png','wb')
