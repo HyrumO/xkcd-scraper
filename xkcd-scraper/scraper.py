@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as bs
 import requests
 
 
-
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 
 
@@ -55,21 +55,66 @@ def download_img(post_list: list):
         #print(title+": "+str(img_num))
 
         #what is in the photo
-        context = title_text
+        context = str(title_text)
         
         
 
         # Downloads the images and saves it as the post number(img_num) to the directory "Files"
+        
         img = requests.get(img_url)
         f  = open(f'ImageDownloads\\{img_num}.png','wb')
         f.write(img.content)
         f.close()
 
         
+        #takes the image and expands it to have some extra pixels to write text with
+        pil_img = Image.open(f'ImageDownloads\\{img_num}.png')
+        print(pil_img.size)
 
+        
+        img_s = pil_img.size
+        img_w = img_s[0]
+        img_h = img_s[1]
         
 
 
+        box_height_expand = (0,0,100,100)
+        box_width_expand = (0,0,400,0)
+        
+        
+        #if img_h<img_w:
+        pil_img = ImageOps.expand(pil_img,box_height_expand,)
+        
+        print(len(context))
+        lines = len(context)//60
+        contextlist = []
+        for i in range(lines):
+            #splits the sentence into 60 char segments
+            set1 = 0
+            char = 60
+            contextlist.append(context[set1:char])
+            set1 = set1+60
+            char = char+60
+            if char>len(context):
+                contextlist.append(context[char-60:])
+        #print(contextlist)
+
+
+            
+        map(lambda contextlist: i in contextlist,contextlist)
+
+
+        contextHalf1 = context[:len(context)//2]
+        contextHalf2 = context[len(context)//2:]
+        
+        write = ImageDraw.Draw(pil_img)
+        write.multiline_text((10,img_h),contextHalf1+'\n'+contextHalf2, fill=(100,100,200))
+
+        pil_img.save(f'ImageDownloads\\{img_num}.png')
+
+        #write = Image.open(f'ImageDownloads\\{img_num}.png')
+            
+   
 
      
     
