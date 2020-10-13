@@ -4,7 +4,7 @@ A scraper which will download all of the XKCD comics.
 
 To install all dependencys for this project use "pip install -r requirements.txt"
 
-
+# Using the program
 
 All downloaded comics will go inside the ImageDownloads file and you can specify how much should be downloaded by increasing the counter on the download_img for loop
 
