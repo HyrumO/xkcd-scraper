@@ -2,17 +2,18 @@ from bs4 import BeautifulSoup as bs
 import requests
 
 
-from PIL import Image, ImageOps, ImageDraw, ImageFont
+from PIL import Image, ImageOps, ImageDraw, ImageFont\
 
+#decides if you want to write the context ON the image for easy reading and exporting
+Context_write = True
 
-
-def main():
+def main(Context_write):
     url = 'https://xkcd.com/archive/'
 
     src = requests.get(url).text
     soup = bs(src, 'lxml')
 
-    download_img(archive_list(soup))
+    download_img(archive_list(soup), Context_write)
 
 
 def archive_list(soup_obj) -> list:
@@ -35,14 +36,54 @@ def archive_list(soup_obj) -> list:
 
     return archive_links
 
+#this splits the context into writtable lines for the write image function
+def makeMulti_lines(context):
+    lines = (len(context)//60)+1
+    print(lines)
+    contextlist = ""
+    #t is used to make sure that a \n isnt added at the start or end
+    t = 0
+    set1 = 0
+    char = 60
+    
+    nextSpace = context.find(" ",char)
+    if t == 0:
+        contextlist = context[set1:nextSpace]+'_insert_'
+        t=t+1
+        set1 = set1+60
+        char = char+60
 
-def download_img(post_list: list):
+
+    for i in range(lines):
+        #splits the sentence into 60 char segments
+
+        #t = len(contextlist)
+
+        if char<len(context):
+
+            nextSpace = context.find(" ",char)
+            contextlist = contextlist+context[set1:nextSpace]+"_insert_"
+            set1 = set1+60
+            char = char+60
+            #print(contextlist)
+            
+          
+        else:
+            #print((nextSpace-char))
+            contextlist = contextlist +"  "+ context[char+(nextSpace-char):]
+            
+            #print(lines)
+            
+            return contextlist, lines
+        
+
+def download_img(post_list: list, Context_write):
     """
     Takes in a list of posts and then downloads the images from each of them
     using the xkcd API
     """
     
-    for i in range(2): #can use this if want
+    for i in range(15): #can use this if want
         # Adds the proper URL to get the json
         # information for each of the posts
         #gets the title of the image, and the name of the image as well
@@ -53,12 +94,8 @@ def download_img(post_list: list):
         
         #confimrs that it is actually downloading it
         #print(title+": "+str(img_num))
-
         #what is in the photo
         context = str(title_text)
-        
-        
-
         # Downloads the images and saves it as the post number(img_num) to the directory "Files"
         
         img = requests.get(img_url)
@@ -66,53 +103,42 @@ def download_img(post_list: list):
         f.write(img.content)
         f.close()
 
-        
-        #takes the image and expands it to have some extra pixels to write text with
-        pil_img = Image.open(f'ImageDownloads\\{img_num}.png')
-        print(pil_img.size)
+        if Context_write == True:
 
+            #takes the image and expands it to have some extra pixels to write text with
+            pil_img = Image.open(f'ImageDownloads\\{img_num}.png')
+            print(pil_img.size)
         
-        img_s = pil_img.size
-        img_w = img_s[0]
-        img_h = img_s[1]
-        
-
-
-        box_height_expand = (0,0,100,100)
-        box_width_expand = (0,0,400,0)
-        
-        
-        #if img_h<img_w:
-        pil_img = ImageOps.expand(pil_img,box_height_expand,)
-        
-        print(len(context))
-        lines = len(context)//60
-        contextlist = []
-        for i in range(lines):
-            #splits the sentence into 60 char segments
-            set1 = 0
-            char = 60
-            contextlist.append(context[set1:char])
-            set1 = set1+60
-            char = char+60
-            if char>len(context):
-                contextlist.append(context[char-60:])
-        #print(contextlist)
-
-
+            img_s = pil_img.size
+            img_w = img_s[0]
+            img_h = img_s[1]
             
-        map(lambda contextlist: i in contextlist,contextlist)
+
+            contextSections, lines = makeMulti_lines(context) 
+            print(context+'\n'+"********************************")
+            #print(contextSections)
+            
+            contextSections = contextSections.replace("_insert_","\n")
 
 
-        contextHalf1 = context[:len(context)//2]
-        contextHalf2 = context[len(context)//2:]
+             
+
+
+            #tells how much to expand the image based on how many lines there are in the context string
+            expand = lines*20
+            #example of box widths
+            box_height_expand = (0,0,100,expand)
+            box_width_expand = (0,0,400,0)
+
+            pil_img = ImageOps.expand(pil_img,box_height_expand)
+            
+            fnt = ImageFont.truetype("Piazzolla-BlackItalic-opsz=8.ttf", 10)
+            write = ImageDraw.Draw(pil_img)
+            write.multiline_text((10,img_h),contextSections, fill=(100,100,200), font=fnt)
+
+            pil_img.save(f'ImageDownloads\\{img_num}.png')
+
         
-        write = ImageDraw.Draw(pil_img)
-        write.multiline_text((10,img_h),contextHalf1+'\n'+contextHalf2, fill=(100,100,200))
-
-        pil_img.save(f'ImageDownloads\\{img_num}.png')
-
-        #write = Image.open(f'ImageDownloads\\{img_num}.png')
             
    
 
@@ -121,4 +147,7 @@ def download_img(post_list: list):
 
 
 if __name__ == '__main__':
-    main()
+    main(Context_write)
+
+
+
