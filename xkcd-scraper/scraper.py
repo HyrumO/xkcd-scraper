@@ -5,7 +5,7 @@ import requests
 from PIL import Image, ImageOps, ImageDraw, ImageFont\
 
 #decides if you want to write the context ON the image for easy reading and exporting
-Context_write = False
+Context_write = True
 
 def main(Context_write):
     url = 'https://xkcd.com/archive/'
@@ -83,7 +83,7 @@ def download_img(post_list: list, Context_write):
     using the xkcd API
     """
     
-    for i in range(15): #can use this if want
+    for i in range(5): #can use this if want
         # Adds the proper URL to get the json
         # information for each of the posts
         #gets the title of the image, and the name of the image as well
