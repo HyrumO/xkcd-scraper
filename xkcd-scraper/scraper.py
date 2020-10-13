@@ -5,7 +5,7 @@ import requests
 from PIL import Image, ImageOps, ImageDraw, ImageFont\
 
 #decides if you want to write the context ON the image for easy reading and exporting
-Context_write = True
+Context_write = False
 
 def main(Context_write):
     url = 'https://xkcd.com/archive/'
@@ -99,14 +99,14 @@ def download_img(post_list: list, Context_write):
         # Downloads the images and saves it as the post number(img_num) to the directory "Files"
         
         img = requests.get(img_url)
-        f  = open(f'ImageDownloads\\{img_num}.png','wb')
+        f  = open(f'xkcd-scraper\\ImageDownloads\\{img_num}.png','wb')
         f.write(img.content)
         f.close()
 
         if Context_write == True:
 
             #takes the image and expands it to have some extra pixels to write text with
-            pil_img = Image.open(f'ImageDownloads\\{img_num}.png')
+            pil_img = Image.open(f'xkcd-scraper\\ImageDownloads\\{img_num}.png')
             print(pil_img.size)
         
             img_s = pil_img.size
@@ -136,7 +136,7 @@ def download_img(post_list: list, Context_write):
             write = ImageDraw.Draw(pil_img)
             write.multiline_text((10,img_h),contextSections, fill=(100,100,200), font=fnt)
 
-            pil_img.save(f'ImageDownloads\\{img_num}.png')
+            pil_img.save(f'xkcd-scraper\\ImageDownloads\\{img_num}.png')
 
         
             
